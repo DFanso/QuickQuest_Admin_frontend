@@ -46,12 +46,21 @@ const Services = () => {
     <div className="p-4 mt-14">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-black">Services</h1>
-        <Link href="/addService">
-          <button className="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center">
-            <FaPlus className="text-xl" />
-            <span className="ml-2">Add Service</span>
-          </button>
-        </Link>
+        <div className="flex">
+          <Link href="/addService">
+            <button className="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center mr-2">
+              <FaPlus className="text-xl" />
+              <span className="ml-2">Add Service</span>
+            </button>
+          </Link>
+          <Link href="/editService">
+            <button className="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center">
+
+              <FaEdit className="text-xl" />
+              <span className="ml-2">Edit Service</span>
+            </button>
+          </Link>
+        </div>
       </div>
       <div className="flex flex-wrap justify-center md:justify-start -mx-2">
         {services.map((service) => (

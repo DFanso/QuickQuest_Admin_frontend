@@ -5,6 +5,7 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBriefcase, faDollarSign, faScissors } from '@fortawesome/free-solid-svg-icons';
 import './globals.css'
+import OrderAnalysisCard from './components/totalOrders';
 
 const DashboardCard = ({ icon, title, value }) => {
   return (
@@ -71,12 +72,18 @@ const Dashboard = () => {
         />
       </div>
       {/* Chart Section */}
-      <div className="m-12">
+      <div className="mb-4 mt-10 mx-16">
         <div className="p-10 w-full bg-white rounded-lg shadow-md my-6" style={{ height: '370px' }}>
           <Line data={data} options={options} />
         </div>
-        <p className='text-black'>Total Orders this week</p>
+        {/* <p className='text-black'>Total Orders this week</p> */}
       </div>
+
+      <div className='flex items-center justify-center'>
+
+        <OrderAnalysisCard />
+      </div>
+
     </>
   );
 };
