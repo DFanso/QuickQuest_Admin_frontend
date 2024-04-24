@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes, faEdit, faEye, faregular } from '@fortawesome/free-solid-svg-icons';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import '../globals.css'
+import { FaEdit } from "react-icons/fa";
 import Link from 'next/link';
 
 
@@ -52,12 +53,20 @@ const CategoriesPage = () => {
         <div className="p-8 mt-14">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-black">Categories</h1>
-                <Link href="/addCategory">
-                    <button className="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center">
-                        <FontAwesomeIcon icon={faPlus} />
-                        <span className="ml-2">Add new category</span>
-                    </button>
-                </Link>
+                <div className='flex'>
+                    <Link href="/addCategory">
+                        <button className="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center mr-2 hover:bg-teal-700 duration-700">
+                            <FontAwesomeIcon icon={faPlus} />
+                            <span className="ml-2">Add new category</span>
+                        </button>
+                    </Link>
+                    <Link href="/editCategory">
+                        <button className="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-teal-700 duration-700">
+                            <FaEdit className="text-xl" />
+                            <span className="ml-2">Edit category</span>
+                        </button>
+                    </Link>
+                </div>
             </div>
             <div>
                 {categories.map((category) => (
