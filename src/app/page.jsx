@@ -1,16 +1,18 @@
-"use client"
-import React from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBriefcase, faDollarSign, faScissors } from '@fortawesome/free-solid-svg-icons';
-import './globals.css'
+import './globals.css';
 import OrderAnalysisCard from './components/totalOrders';
+import AuthRoute from './(auth)/AuthRoute';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const DashboardCard = ({ icon, title, value }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md flex flex-col items-center justify-center p-10 m-2"
-      style={{ width: '300px', height: '200px', boxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.25)' }}>
+    <div className="bg-white rounded-lg shadow-md flex flex-col items-center justify-center p-10 m-2" style={{ width: '300px', height: '200px', boxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.25)' }}>
       <FontAwesomeIcon icon={icon} size="4x" className="text-teal-400" />
       <p className="mt-4 text-gray-600 text-sm uppercase">{title}</p>
       <p className="text-xl font-semibold text-teal-500 mt-2">{value}</p>
@@ -51,25 +53,44 @@ const options = {
 };
 
 const Dashboard = () => {
+  const router = useRouter();
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        try {
+          const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/auth/profile`, {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`
+            }
+          });
+          setUserProfile(data);
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+          localStorage.removeItem('token');
+          router.push('/login');
+        }
+      } else {
+        router.push('/login');
+      }
+    };
+
+    checkToken();
+  }, [router]);
+
+  if (!userProfile) {
+    return null; // or you can render a loading state
+  }
+
   return (
     <>
       <h2 className="text-2xl font-semibold my-4 text-black mt-16 pl-12">Dashboard</h2>
       <div className="flex justify-around">
-        <DashboardCard
-          icon={faBriefcase}
-          title="Total jobs completed"
-          value="1000+"
-        />
-        <DashboardCard
-          icon={faDollarSign}
-          title="Total Revenue earned"
-          value="$2000"
-        />
-        <DashboardCard
-          icon={faScissors}
-          title="Services provided"
-          value="3000+"
-        />
+        <DashboardCard icon={faBriefcase} title="Total jobs completed" value="1000+" />
+        <DashboardCard icon={faDollarSign} title="Total Revenue earned" value="$2000" />
+        <DashboardCard icon={faScissors} title="Services provided" value="3000+" />
       </div>
       {/* Chart Section */}
       <div className="mb-4 mt-10 mx-16">
@@ -78,12 +99,9 @@ const Dashboard = () => {
         </div>
         {/* <p className='text-black'>Total Orders this week</p> */}
       </div>
-
       <div className='flex items-center justify-center'>
-
         <OrderAnalysisCard />
       </div>
-
     </>
   );
 };
