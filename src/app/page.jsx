@@ -1,3 +1,4 @@
+// Dashboard.js
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
@@ -20,23 +21,6 @@ const DashboardCard = ({ icon, title, value }) => {
   );
 };
 
-const data = {
-  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-  datasets: [
-    {
-      label: 'Order frequency',
-      data: [20, 45, 28, 80, 99, 43, 50], // Replace with your actual data
-      fill: true,
-      backgroundColor: 'rgba(75,192,192,0.2)',
-      borderColor: 'rgba(75,192,192,1)',
-      pointBackgroundColor: 'rgba(75,192,192,1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(75,192,192,1)',
-    },
-  ],
-};
-
 const options = {
   maintainAspectRatio: false, // Allows custom control of height
   aspectRatio: 2, // Aspect ratio of the chart, you can adjust this value
@@ -55,20 +39,28 @@ const options = {
 const Dashboard = () => {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState(null);
+  const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
     const checkToken = async () => {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
         try {
-          const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/auth/profile`, {
+          const { data: profileData } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/auth/profile`, {
             headers: {
               'Authorization': `Bearer ${storedToken}`
             }
           });
-          setUserProfile(data);
+          setUserProfile(profileData);
+
+          const { data: jobsData } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/jobs/admin`, {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`
+            }
+          });
+          setJobs(jobsData);
         } catch (error) {
-          console.error('Failed to fetch user profile:', error);
+          console.error('Failed to fetch data:', error);
           localStorage.removeItem('token');
           router.push('/login');
         }
@@ -84,13 +76,51 @@ const Dashboard = () => {
     return null; // or you can render a loading state
   }
 
+  const currentDate = new Date();
+  const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+  const endOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 6));
+
+  // Calculate total revenue earned (8% of each order price)
+  const totalRevenue = jobs.reduce((revenue, job) => {
+    if (job.status === 'COMPLETED') {
+      revenue += job.price * 0.08;
+    }
+    return revenue;
+  }, 0);
+
+  const data = {
+    labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    datasets: [
+      {
+        label: 'Order frequency',
+        data: jobs.reduce((frequency, job) => {
+          const orderedDate = new Date(job.orderedDate);
+
+          if (orderedDate >= startOfWeek && orderedDate <= endOfWeek) {
+            const dayOfWeek = orderedDate.getDay();
+            frequency[dayOfWeek]++;
+          }
+
+          return frequency;
+        }, [0, 0, 0, 0, 0, 0, 0]),
+        fill: true,
+        backgroundColor: 'rgba(75,192,192,0.2)',
+        borderColor: 'rgba(75,192,192,1)',
+        pointBackgroundColor: 'rgba(75,192,192,1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(75,192,192,1)',
+      },
+    ],
+  };
+
   return (
     <>
       <h2 className="text-2xl font-semibold my-4 text-black mt-16 pl-12">Dashboard</h2>
       <div className="flex justify-around">
-        <DashboardCard icon={faBriefcase} title="Total jobs completed" value="1000+" />
-        <DashboardCard icon={faDollarSign} title="Total Revenue earned" value="$2000" />
-        <DashboardCard icon={faScissors} title="Services provided" value="3000+" />
+        <DashboardCard icon={faBriefcase} title="Total jobs completed" value={jobs.length} />
+        <DashboardCard icon={faDollarSign} title="Total Revenue earned" value={`$${totalRevenue.toFixed(2)}`} />
+        <DashboardCard icon={faScissors} title="Services provided" value={jobs.reduce((services, job) => services.add(job.service.name), new Set()).size} />
       </div>
       {/* Chart Section */}
       <div className="mb-4 mt-10 mx-16">
@@ -100,7 +130,7 @@ const Dashboard = () => {
         {/* <p className='text-black'>Total Orders this week</p> */}
       </div>
       <div className='flex items-center justify-center'>
-        <OrderAnalysisCard />
+        <OrderAnalysisCard jobs={jobs} />
       </div>
     </>
   );
