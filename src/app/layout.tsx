@@ -1,8 +1,8 @@
 import React from 'react';
 import Header from './components/Header'; // Replace with your actual import path
-import Sidebar from './components/Sidebar'; // Replace with your actual import path
+import Sidebar from './components/Sidebar'; // Replace with your
 import Head from 'next/head'; // Import the Head component
-import "./globals.css";
+import './globals.css';
 
 type RootLayoutProps = {
   children: React.ReactNode;
