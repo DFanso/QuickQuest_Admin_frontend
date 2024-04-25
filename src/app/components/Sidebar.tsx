@@ -15,10 +15,6 @@ const Sidebar = () => {
                     <FontAwesomeIcon icon={faTags} className="h-5 w-5 mr-4" />
                     Categories
                 </a>
-                <a href="/services" className="flex items-center p-4 text-black hover:bg-gray-100 rounded-md">
-                    <FontAwesomeIcon icon={faShoppingCart} className="h-5 w-5 mr-4" />
-                    Services
-                </a>
                 <a href="/orders" className="flex items-center p-4 text-black hover:bg-gray-100 rounded-md">
                     <FontAwesomeIcon icon={faShoppingCart} className="h-5 w-5 mr-4" />
                     Orders
