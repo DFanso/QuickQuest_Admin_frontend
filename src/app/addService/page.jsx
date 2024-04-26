@@ -60,7 +60,7 @@ const AddService = () => {
         imageUrl: imageUrl,
       };
 
-      await axios.post('https://api.quick-quest.dfanso.dev/v1/services', serviceData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/services`, serviceData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

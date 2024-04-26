@@ -28,7 +28,7 @@ const EditServicePage = () => {
   const fetchService = async (token) => {
     try {
       const response = await axios.get(
-        `https://api.quick-quest.dfanso.dev/v1/services/${serviceId}`,
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/services/${serviceId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -80,7 +80,7 @@ const EditServicePage = () => {
       };
 
       await axios.patch(
-        `http://localhost:9000/v1/services/${serviceId}`,
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/services/${serviceId}`,
         updatedServiceData,
         {
           headers: {

@@ -76,7 +76,7 @@ const Services = () => {
 
   const handleDeleteService = async (serviceId) => {
     try {
-      await axios.delete(`http://localhost:9000/v1/services/${serviceId}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/services/${serviceId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           accept: '*/*',
