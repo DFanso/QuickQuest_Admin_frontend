@@ -1,32 +1,62 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
-
-const ordersData = [
-    {
-        id: '#469966',
-        service: 'Construction residential',
-        customer: 'Posh Thisara',
-        worker: 'Wet katta',
-        orderDate: '21/05/2024',
-        completionDate: '21/05/2024',
-        price: '$40000',
-        status: 'Completed',
-    },
-    // more orders...
-];
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const OrdersPage = () => {
+    const [ordersData, setOrdersData] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('all');
+    const router = useRouter();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                router.push('/login');
+                return;
+            }
+
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/jobs/admin`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setOrdersData(response.data);
+                setFilteredOrders(response.data);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        filterOrders();
+    }, [selectedStatus]);
+
+    const filterOrders = () => {
+        if (selectedStatus === 'all') {
+            setFilteredOrders(ordersData);
+        } else {
+            const filtered = ordersData.filter((order) => order.status === selectedStatus.toUpperCase());
+            setFilteredOrders(filtered);
+        }
+    };
 
     const renderStatusButton = (status) => {
         const baseStyle = "px-4 py-1 text-xs rounded-full text-white w-24 text-center";
         let statusStyle = baseStyle;
-        if (status === 'Completed') {
+        if (status === 'COMPLETED') {
             statusStyle += ' bg-green-500';
-        } else if (status === 'Pending') {
+        } else if (status === 'PENDING') {
             statusStyle += ' bg-yellow-500';
+        } else if (status === 'PROCESSING') {
+            statusStyle += ' bg-blue-500';
         } else {
             statusStyle += ' bg-red-500';
         }
@@ -52,13 +82,14 @@ const OrdersPage = () => {
             </div>
 
             <div className="flex justify-center mb-6 space-x-2">
-                <button className={`px-4 py-2 text-center ${selectedStatus === 'all' ? 'text-blue-500' : ''}`} onClick={() => setSelectedStatus('all')}>Orders</button>
-                <button className={`px-4 py-2 text-center ${selectedStatus === 'completed' ? 'text-green-500' : ''}`} onClick={() => setSelectedStatus('completed')}>Completed</button>
-                <button className={`px-4 py-2 text-center ${selectedStatus === 'pending' ? 'text-yellow-500' : ''}`} onClick={() => setSelectedStatus('pending')}>Pending</button>
-                <button className={`px-4 py-2 text-center ${selectedStatus === 'canceled' ? 'text-red-500' : ''}`} onClick={() => setSelectedStatus('canceled')}>Canceled</button>
+                <button className={`px-4 py-2 text-center ${selectedStatus === 'all' ? 'text-blue-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('all')}>Orders</button>
+                <button className={`px-4 py-2 text-center ${selectedStatus === 'completed' ? 'text-green-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('completed')}>Completed</button>
+                <button className={`px-4 py-2 text-center ${selectedStatus === 'pending' ? 'text-yellow-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('pending')}>Pending</button>
+                <button className={`px-4 py-2 text-center ${selectedStatus === 'processing' ? 'text-blue-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('processing')}>Processing</button>
+                <button className={`px-4 py-2 text-center ${selectedStatus === 'cancelled' ? 'text-red-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('cancelled')}>Cancelled</button>
             </div>
 
-            <div className="grid grid-cols-8 gap-x-4 text-xs font-bold mb-2">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 text-xs font-bold mb-2 px-4 py-2 bg-gray-100 rounded-t-lg">
                 <span className="text-center">Order ID</span>
                 <span className="text-center">Service</span>
                 <span className="text-center">Customer</span>
@@ -69,15 +100,15 @@ const OrdersPage = () => {
                 <span className="text-center">Status</span>
             </div>
 
-            {ordersData.map((order, index) => (
-                <div key={index} className="grid grid-cols-8 gap-x-4 items-center mb-2">
-                    <span className="text-center">{order.id}</span>
-                    <span className="text-center">{order.service}</span>
-                    <span className="text-center">{order.customer}</span>
-                    <span className="text-center">{order.worker}</span>
-                    <span className="text-center">{order.orderDate}</span>
-                    <span className="text-center">{order.completionDate}</span>
-                    <span className="text-center">{order.price}</span>
+            {filteredOrders.map((order, index) => (
+                <div key={index} className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 items-center mb-2 py-2 px-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                    <span className="text-center">{order._id}</span>
+                    <span className="text-center">{order.service.name}</span>
+                    <span className="text-center">{order.customer.firstName} {order.customer.lastName}</span>
+                    <span className="text-center">{order.worker.firstName} {order.worker.lastName}</span>
+                    <span className="text-center">{new Date(order.orderedDate).toLocaleDateString()}</span>
+                    <span className="text-center">{new Date(order.deliveryDate).toLocaleDateString()}</span>
+                    <span className="text-center">${order.price}</span>
                     <div className="text-center">{renderStatusButton(order.status)}</div>
                 </div>
             ))}
