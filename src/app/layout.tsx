@@ -15,7 +15,7 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
         <title>ADMIN | Quick-Quest</title>
         <meta name="description" content="Book your favorite quest with Quick Quest!" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
       </head>
       <body>
         <div className="flex h-screen bg-gray-100">
