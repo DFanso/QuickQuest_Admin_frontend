@@ -1,8 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 const OrderDetailsModal = ({ order, onClose }) => {
     if (!order) return null;
@@ -29,6 +30,8 @@ const OrderDetailsModal = ({ order, onClose }) => {
                 <ul className="ml-4">
                     <li>Name: {order.worker.firstName} {order.worker.lastName}</li>
                     <li>Email: {order.worker.email}</li>
+                    <li>About Me: {order.worker.aboutMe}</li>
+                    <li>Services: {order.worker.services.join(', ')}</li>
                     <li>Location: {order.worker.location.coordinates.join(', ')}</li>
                 </ul>
                 <p><strong>Order Date:</strong> {new Date(order.orderedDate).toLocaleDateString()}</p>
@@ -124,6 +127,36 @@ const OrdersPage = () => {
         setSelectedOrder(null);
     };
 
+    const handleDeleteOrder = async (orderId) => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'You won\'t be able to revert this!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.delete(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/jobs/${orderId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        accept: '*/*'
+                    }
+                });
+                setOrdersData(ordersData.filter((order) => order._id !== orderId));
+                setFilteredOrders(filteredOrders.filter((order) => order._id !== orderId));
+                Swal.fire('Deleted!', 'The order has been deleted.', 'success');
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                Swal.fire('Error!', 'An error occurred while deleting the order.', 'error');
+            }
+        }
+    };
+
     return (
         <div className="p-4 text-black mt-16">
             <h1 className="text-2xl font-medium text-center mb-4">Orders</h1>
@@ -150,7 +183,7 @@ const OrdersPage = () => {
                 <button className={`px-4 py-2 text-center ${selectedStatus === 'cancelled' ? 'text-red-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('cancelled')}>Cancelled</button>
             </div>
 
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 text-xs font-bold mb-2 px-4 py-2 bg-gray-100 rounded-t-lg">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 text-xs font-bold mb-2 px-4 py-2 bg-gray-100 rounded-t-lg">
                 <span className="text-center">Order ID</span>
                 <span className="text-center">Service</span>
                 <span className="text-center">Customer</span>
@@ -160,10 +193,11 @@ const OrdersPage = () => {
                 <span className="text-center">Price</span>
                 <span className="text-center">Status</span>
                 <span className="text-center">More Info</span>
+                <span className="text-center">Delete</span>
             </div>
 
             {filteredOrders.map((order, index) => (
-                <div key={index} className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 items-center mb-2 py-2 px-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                <div key={index} className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 items-center mb-2 py-2 px-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
                     <span className="text-center">{order._id}</span>
                     <span className="text-center">{order.service.name}</span>
                     <span className="text-center">{order.customer.firstName} {order.customer.lastName}</span>
@@ -174,6 +208,11 @@ const OrdersPage = () => {
                     <div className="text-center">{renderStatusButton(order.status)}</div>
                     <div className="text-center">
                         <button className="px-2 py-1 bg-blue-500 text-white rounded text-xs" onClick={() => handleMoreInfoClick(order)}>More Info</button>
+                    </div>
+                    <div className="text-center">
+                        <button className="px-2 py-1 bg-red-500 text-white rounded text-xs" onClick={() => handleDeleteOrder(order._id)}>
+                            <FaTrash />
+                        </button>
                     </div>
                 </div>
             ))}
