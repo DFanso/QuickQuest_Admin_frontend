@@ -30,8 +30,6 @@ const OrderDetailsModal = ({ order, onClose }) => {
                 <ul className="ml-4">
                     <li>Name: {order.worker.firstName} {order.worker.lastName}</li>
                     <li>Email: {order.worker.email}</li>
-                    <li>About Me: {order.worker.aboutMe}</li>
-                    <li>Services: {order.worker.services.join(', ')}</li>
                     <li>Location: {order.worker.location.coordinates.join(', ')}</li>
                 </ul>
                 <p><strong>Order Date:</strong> {new Date(order.orderedDate).toLocaleDateString()}</p>
