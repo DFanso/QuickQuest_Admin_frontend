@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import axios from 'axios';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FaPencilAlt, FaTimes, FaPlus } from 'react-icons/fa';
@@ -114,4 +114,10 @@ const Services = () => {
   );
 };
 
-export default Services;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Services />
+    </Suspense>
+  );
+}

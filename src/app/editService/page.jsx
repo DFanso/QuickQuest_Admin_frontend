@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
@@ -191,4 +191,10 @@ const EditServicePage = () => {
   );
 };
 
-export default EditServicePage;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditServicePage />
+    </Suspense>
+  );
+}
