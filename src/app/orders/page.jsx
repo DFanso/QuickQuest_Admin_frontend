@@ -37,15 +37,27 @@ const OrdersPage = () => {
 
     useEffect(() => {
         filterOrders();
-    }, [selectedStatus]);
+    }, [selectedStatus, searchTerm]);
 
     const filterOrders = () => {
-        if (selectedStatus === 'all') {
-            setFilteredOrders(ordersData);
-        } else {
-            const filtered = ordersData.filter((order) => order.status === selectedStatus.toUpperCase());
-            setFilteredOrders(filtered);
+        let filtered = ordersData;
+
+        if (selectedStatus !== 'all') {
+            filtered = filtered.filter((order) => order.status === selectedStatus.toUpperCase());
         }
+
+        if (searchTerm) {
+            filtered = filtered.filter((order) =>
+                order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.worker.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.worker.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        setFilteredOrders(filtered);
     };
 
     const renderStatusButton = (status) => {
