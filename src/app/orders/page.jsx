@@ -4,11 +4,52 @@ import { FaSearch } from 'react-icons/fa';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
+const OrderDetailsModal = ({ order, onClose }) => {
+    if (!order) return null;
+
+    return (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg w-96 max-h-screen overflow-y-auto">
+                <h2 className="text-xl font-bold mb-4">Order Details</h2>
+                <p><strong>Order ID:</strong> {order._id}</p>
+                <p><strong>Service:</strong></p>
+                <ul className="ml-4">
+                    <li>Name: {order.service.name}</li>
+                    <li>Description: {order.service.description}</li>
+                    <li>Category: {order.service.category.name}</li>
+                    <li>Starting Price: ${order.service.startingPrice}</li>
+                </ul>
+                <p><strong>Customer:</strong></p>
+                <ul className="ml-4">
+                    <li>Name: {order.customer.firstName} {order.customer.lastName}</li>
+                    <li>Email: {order.customer.email}</li>
+                    <li>Location: {order.customer.location.coordinates.join(', ')}</li>
+                </ul>
+                <p><strong>Worker:</strong></p>
+                <ul className="ml-4">
+                    <li>Name: {order.worker.firstName} {order.worker.lastName}</li>
+                    <li>Email: {order.worker.email}</li>
+                    <li>Location: {order.worker.location.coordinates.join(', ')}</li>
+                </ul>
+                <p><strong>Order Date:</strong> {new Date(order.orderedDate).toLocaleDateString()}</p>
+                <p><strong>Completion Date:</strong> {new Date(order.deliveryDate).toLocaleDateString()}</p>
+                <p><strong>Price:</strong> ${order.price}</p>
+                <p><strong>Status:</strong> {order.status}</p>
+                <p><strong>Payment URL:</strong> <a href={order.paymentUrl} target="_blank" rel="noopener noreferrer">{order.paymentUrl}</a></p>
+                <p><strong>PayPal Order ID:</strong> {order.paypalOrderId}</p>
+                <p><strong>Description:</strong> {order.description}</p>
+                <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={onClose}>Close</button>
+            </div>
+        </div>
+    );
+};
+
 const OrdersPage = () => {
     const [ordersData, setOrdersData] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('all');
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -75,6 +116,14 @@ const OrdersPage = () => {
         return <button className={statusStyle}>{status}</button>;
     };
 
+    const handleMoreInfoClick = (order) => {
+        setSelectedOrder(order);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedOrder(null);
+    };
+
     return (
         <div className="p-4 text-black mt-16">
             <h1 className="text-2xl font-medium text-center mb-4">Orders</h1>
@@ -101,7 +150,7 @@ const OrdersPage = () => {
                 <button className={`px-4 py-2 text-center ${selectedStatus === 'cancelled' ? 'text-red-500 font-bold' : 'text-gray-500'}`} onClick={() => setSelectedStatus('cancelled')}>Cancelled</button>
             </div>
 
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 text-xs font-bold mb-2 px-4 py-2 bg-gray-100 rounded-t-lg">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 text-xs font-bold mb-2 px-4 py-2 bg-gray-100 rounded-t-lg">
                 <span className="text-center">Order ID</span>
                 <span className="text-center">Service</span>
                 <span className="text-center">Customer</span>
@@ -110,10 +159,11 @@ const OrdersPage = () => {
                 <span className="text-center">Completion Date</span>
                 <span className="text-center">Price</span>
                 <span className="text-center">Status</span>
+                <span className="text-center">More Info</span>
             </div>
 
             {filteredOrders.map((order, index) => (
-                <div key={index} className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 items-center mb-2 py-2 px-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                <div key={index} className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-x-4 items-center mb-2 py-2 px-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
                     <span className="text-center">{order._id}</span>
                     <span className="text-center">{order.service.name}</span>
                     <span className="text-center">{order.customer.firstName} {order.customer.lastName}</span>
@@ -122,8 +172,13 @@ const OrdersPage = () => {
                     <span className="text-center">{new Date(order.deliveryDate).toLocaleDateString()}</span>
                     <span className="text-center">${order.price}</span>
                     <div className="text-center">{renderStatusButton(order.status)}</div>
+                    <div className="text-center">
+                        <button className="px-2 py-1 bg-blue-500 text-white rounded text-xs" onClick={() => handleMoreInfoClick(order)}>More Info</button>
+                    </div>
                 </div>
             ))}
+
+            <OrderDetailsModal order={selectedOrder} onClose={handleCloseModal} />
         </div>
     );
 };
