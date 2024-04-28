@@ -1,5 +1,5 @@
-"use client"
-import React, { useState, useRef, useEffect } from 'react';
+"use client";
+import React, { useState, useRef, useEffect,Suspense } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import '../globals.css';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -154,4 +154,10 @@ const EditCategoryPage = () => {
   );
 };
 
-export default EditCategoryPage;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditCategoryPage />
+    </Suspense>
+  );
+}

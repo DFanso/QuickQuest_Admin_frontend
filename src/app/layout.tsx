@@ -1,7 +1,7 @@
+"use client";
 import React from 'react';
-import Header from './components/Header'; // Replace with your actual import path
-import Sidebar from './components/Sidebar'; // Replace with your
-import Head from 'next/head'; // Import the Head component
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import './globals.css';
 
 type RootLayoutProps = {
@@ -10,24 +10,21 @@ type RootLayoutProps = {
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   return (
-
     <html lang="en">
-      <Head>
-        <title>Quick-Quest</title>
+      <head>
+        <title>ADMIN | Quick-Quest</title>
         <meta name="description" content="Book your favorite quest with Quick Quest!" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-      </Head>
+      </head>
       <body>
         <div className="flex h-screen bg-gray-100">
           {/* Sidebar */}
           <Sidebar />
-
           {/* Content area with header */}
           <div className="flex-1 flex flex-col">
             {/* Header */}
             <Header />
-
             {/* Main content */}
             <main className="flex-1 overflow-y-auto">
               <div className="container mx-auto p-4">
@@ -38,7 +35,6 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
         </div>
       </body>
     </html>
-
   );
 };
 
