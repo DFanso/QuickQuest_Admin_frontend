@@ -10,7 +10,7 @@ const uploadImage = async (file: File): Promise<string> => {
       `${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/s3/generate-presigned-url`,
       {
         fileName: sanitizedFileName,
-        domain: 'DP',
+        domain: 'SERVICE',
         contentType: file.type,
       }
     );
